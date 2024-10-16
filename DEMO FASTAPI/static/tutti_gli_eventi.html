@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Grid View</title>
+    <style>
+
+        /* Container della griglia */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Griglia dinamica */
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* Stile per le card */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px); /* Effetto hover */
+        }
+
+        /* Stile per l'immagine */
+        .card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        /* Stile per il contenuto della card */
+        .card-content {
+            padding: 15px;
+        }
+
+        .card-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 0 0 10px;
+        }
+
+        .card-description {
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        /* Stile per i dispositivi mobile */
+        @media (max-width: 600px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Container per la griglia delle card -->
+    <div class="grid-container" id="card-container">
+        <!-- Card dinamiche generate qui -->
+    </div>
+
+    <script>
+        // Simulazione di dati dinamici letti dal database
+        const data = [
+            { title: "Card 1", description: "This is the description for card 1.", imageUrl: "https://via.placeholder.com/300x150" },
+            { title: "Card 2", description: "This is the description for card 2.", imageUrl: "https://via.placeholder.com/300x150" },
+            { title: "Card 3", description: "This is the description for card 3.", imageUrl: "https://via.placeholder.com/300x150" },
+            { title: "Card 4", description: "This is the description for card 4.", imageUrl: "https://via.placeholder.com/300x150" },
+            { title: "Card 5", description: "This is the description for card 5.", imageUrl: "https://via.placeholder.com/300x150" }
+        ];
+
+        // Funzione per generare le card dinamicamente
+        function createCard(data) {
+            return `
+                <div class="card">
+                    <img src="${data.imageUrl}" alt="${data.title}">
+                    <div class="card-content">
+                        <div class="card-title">${data.title}</div>
+                        <div class="card-description">${data.description}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Aggiunta dinamica delle card al container
+        const cardContainer = document.getElementById("card-container");
+        data.forEach(item => {
+            cardContainer.innerHTML += createCard(item);
+        });
+    </script>
+
+</body>
+</html>
