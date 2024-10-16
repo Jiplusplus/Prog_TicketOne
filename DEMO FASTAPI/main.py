@@ -1,4 +1,3 @@
-from urllib import request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -11,13 +10,11 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 
-
-
 # Connessione al database MySQL
 conn = mysql.connector.connect(
     host="localhost",
-    user="bsd",  # Inserisci il tuo nome utente del database
-    password="ciao",  # Inserisci la password del database
+    user="root",  # Inserisci il tuo nome utente del database
+    password="",  # Inserisci la password del database
     database="ticket_one",  # Inserisci il nome del tuo database
     port=3306
 )
@@ -33,12 +30,12 @@ async def root():
 async def get_comuni():
     try:
         cursor = conn.cursor()
-        query = "SELECT nome FROM comune"
+        query = "SELECT nome, ID_comune FROM comune"
         print("sto eseguendo la query del comune"); 
         cursor.execute(query)
         result = cursor.fetchall()
         # Converte il risultato in un formato utilizzabile per il front-end (es. lista di dizionari)
-        data = [{"nome": row[0], "id": row[1]} for row in result]
+        data = [{"nome": row[0], "id":row[1]} for row in result]
         return JSONResponse(content=data)
     except mysql.connector.Error as err:
         return JSONResponse(content={"error": f"Errore nel recupero dei dati: {err}"})
@@ -48,33 +45,51 @@ async def get_comuni():
 
 
 
-@app.get("/get_eventi")
+
+@app.get("/get_top_eventi")
 async def get_eventi():
-    data = await request.json()
-    stringaRicerca = data.get("ricerca");
-    print("stringa ricerca");
-    
     try:
         cursor = conn.cursor()
-        interrogazione = 'SELECT ID_Evento, nome, data, descrizione, capienza_max FROM evento ORDER BY capienza_max DESC LIMIT 5'
-        if len (stringaRicerca) > 0:
-            interrogazione += 'WHERE  nome LIKE "%"' + stringaRicerca + "%";
+        interrogazione = 'SELECT ID_Evento, nome, data, descrizione FROM evento ORDER BY capienza_max DESC LIMIT 5 ;'
         cursor.execute(interrogazione)
-        
-        result = cursor.fetchall()
-        
-        datiCatturati = [{"id": row[0], "nome": row[1], "data": row[2].isoformat(), "descrizione": row[3]} for row in result]
+        result = cursor.fetchall() 
+        datiCatturati = [{"id": row[0], "nome":row[1], "data": row[2].isoformat(), "descrizione":row[3]} for row in result]
         print(datiCatturati)
-        return JSONResponse(content=datiCatturati)
-    except mysql.connector.Error as err:
+        return  JSONResponse(content=datiCatturati) 
+    except mysql.connector.Error as err: 
         return JSONResponse(content={"error": f"Errore nel recupero dei dati: {err}"})
-
-    finally:
-        if 'cursor' in locals():
+    finally: 
+        if 'cursor' in locals(): 
             cursor.close()
 
 
+#(int numero)
+#(nomeVariabile: type)
 
+
+@app.get("/get_eventi")
+async def get_eventi(ricerca: str = ''):
+    print("STRINGA RICERCA: ")
+    print(ricerca)
+    try:
+        cursor = conn.cursor()
+        interrogazione = 'SELECT ID_Evento, nome, data, descrizione FROM evento'
+        if len(ricerca) > 0:
+            interrogazione += ' WHERE nome LIKE "%' + ricerca  + '%"'
+        print(interrogazione)
+        cursor.execute(interrogazione)
+        result = cursor.fetchall() 
+        datiCatturati = [{"id": row[0], "nome":row[1], "data": row[2].isoformat(), "descrizione":row[3]} for row in result]
+        print(datiCatturati)
+        return  JSONResponse(content=datiCatturati) 
+    except mysql.connector.Error as err: 
+        return JSONResponse(content={"error": f"Errore nel recupero dei dati: {err}"})
+    finally: 
+        if 'cursor' in locals(): 
+            cursor.close()
+
+
+@app.post("/reg_comune")
 async def reg_comune(request: Request):
     data = await request.json()
     nome = data.get("nome")

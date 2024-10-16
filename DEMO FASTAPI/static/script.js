@@ -1,111 +1,148 @@
 class Evento{
-    constructor(id, nome, dataEvento, descrizione){
-        this.id = id;
-        this.nome = nome;
-        this.dataEvento = dataEvento;
-        this.descrizione = descrizione;
-    }
-}
-async function getEventi() {
-    let eventi = new Array();
-    try{
-        const response = await fetch('/get_eventi');
-        console.log(response);
-        const data = await response.json();
-        console.log("dati dal server:", data);
-        for(let a = 0; a < data.length; a++){
-            const nome = data[a].nome;
-            const id = data[a].id;
-            const descrizione = data[a].descrizione;
-            const dataEvento = data[a].data;
-            let eventoSingolo = new Evento(id, nome, dataEvento, descrizione);
-            eventi.push(eventoSingolo);
-        }
-        return eventi;
-    }catch (error) {
-        console.log("errore durante la richiesta", error);
-        return null;
+    constructor(id, nome, descrizione, dataEvento){
+        this.id = id; 
+        this.nome = nome; 
+        this.descrizione = descrizione; 
+        this.dataEvento = dataEvento; 
     }
 }
 
-function GetEventCard(evento){
-    let carta = document.createElement("div");
-    carta.setAttribute("class", "event-card");
-    let immagine = document.createElement("img");
-    let titolo = document.createElement("h3");
-    titolo.innerText = evento.nome;
-    let descrizione = document.createElement("p");
-    descrizione.innerText = evento.descrizione;
-    let spazioData = document.createElement("p");
-    spazioData.innerText = italianDate(evento.dataEvento);
 
-    carta.appendChild(immagine);
-    carta.appendChild(titolo);
-    carta.appendChild(spazioData);
-    carta.appendChild(descrizione);
-
-    return carta;
+//prende una data americana e la trasforma in europa
+//2024-10-30 --> split("-") --> [2024, 10, 30]
+//30/10/2024
+function getItalianDate(americanDate){
+    dati = americanDate.split("-");  
+    return dati[2] + "/" + dati[1] + "/" + dati[0]; 
 }
 
 
 
-function italianDate(americanDate){
-    dati = americanDate.split("-");
-    return dati[2] + "/" + dati[1] + "/" + dati[0];
+//funzione grafica che mi crea le parti HTML sulla base degli eventi 
+function getEventCard(evento){
+    let carta = document.createElement("div"); 
+    carta.setAttribute("class", "event-card"); 
+
+    let immagine = document.createElement("img"); 
+    immagine.setAttribute("src", "live.jpg"); 
+    let titolo = document.createElement("h3"); 
+    titolo.innerText = evento.nome; 
+
+    let descrizione = document.createElement("p"); 
+    descrizione.innerText = evento.descrizione; 
+
+    let spazioData = document.createElement("p"); 
+    spazioData.innerText =  getItalianDate(evento.dataEvento); 
+
+    carta.appendChild(immagine); 
+    carta.appendChild(titolo); 
+    carta.appendChild(spazioData); 
+    carta.appendChild(descrizione); 
+    
+    return carta; 
 }
 
-
-// Funzione per generare le card dinamicamente
-function createCard(data) {
+function getEventCard2(evento){
     return `
-        <div class="card">
-            <img src="${data.imageUrl}" alt="${data.title}">
-            <div class="card-content">
-                <div class="card-title">${data.title}</div>
-                <div class="card-description">${data.description}</div>
+            <div class="card">
+                <img src="live.jpg">
+                <div class="card-content">
+                    <div class="card-title">${evento.nome}</div>
+                    <div class="card-description">${getItalianDate(evento.dataEvento)}</div>
+                    <div class="card-description">${evento.descrizione}</div>
+                </div>
             </div>
-        </div>
-    `;
-}
-
-function getEventCard2(evento) {
-    return `
-        <div class="card">
-            <img src="${evento.imageUrl}" alt="${evento.title}">
-            <div class="card-content">
-                <div class="card-title">${evento.nome}</div>
-                <div class="card-description">${italianDate(evento.dataEvento)}</div>
-                <div calss="card-description">${evento.descrizione}</div>
-            </div>
-        </div>
-    `;
+        `;
 }
 
 
+async function updateTopEventi(){
+    eventi = await getTopEventi(); 
+    console.log(eventi); 
+    if(eventi == null){
+        console.log("PROBLEMI DI CONNESSIONE")
+        return; 
+    }
+    let divGenitore = document.getElementById("eventiDisponibili"); 
+    divGenitore.innerHTML = ""; 
+
+    for(let a = 0; a < eventi.length; a++){
+        divGenitore.appendChild(getEventCard(eventi[a])); 
+    }
+
+}
 
 async function updateEventi() {
-    let eventi = await getEventi();
+    
+    let eventi = await getEventi(); 
     if(eventi == null){
-        console.log("nessun evento caricato");
-        return;
+        console.log("Nessun evento caricato"); 
+        return; 
     }
     let divGenitore = document.getElementById("card-container");
-    divGenitore.innerHTML = '';
-    for(let a = 0; a <eventi.length; a++){
-        divGenitore.innerHTML += (getEventCard2(eventi[a]));
+    divGenitore.innerHTML = ''; 
+    for(let a = 0; a < eventi.length; a++ ){
+        divGenitore.innerHTML += getEventCard2(eventi[a]); 
+
+        //divGenitore.appendChild(getEventCard2(eventi[a])); 
     }
 }
 
-async function updateTopEventi() {
-    let eventi = await getEventi();
-    if(eventi == null){
-        console.log("nessun evento caricato");
-        return;
+
+
+async function getEventi(){     //deve essere asincrona in quanto la fetch è asincrona di definizione, noi la aspettiamo con await 
+    //TODO: far in modo che prenda il parametro della barra di ricerca 
+
+    console.log("GET EVENTI IN EXEC"); 
+    let eventi = new Array(); 
+    
+    const parametro = "live"; 
+
+    try {
+        const response = await fetch(`/get_eventi?ricerca=${parametro}`);
+        const data = await response.json();     //la risposta da parte del db sottoforma di JSON 
+        console.log('Dati dal server:', data);
+    
+        for(let a = 0; a < data.length; a++){       //for o foreach 
+            const nome = data[a].nome; 
+            const id = data[a].id; 
+            const descrizione = data[a].descrizione;  
+            const dataEvento = data[a].data; 
+
+            let eventoSingolo = new Evento(id, nome, descrizione, dataEvento); 
+            eventi.push(eventoSingolo); 
+        }
+        console.log("eventi catturati tutti. "); 
+        console.log(eventi); 
+        return eventi; 
+    } catch (error) {
+        console.error('Errore durante la richiesta:', error);
+        return null; 
     }
-    let divGenitore = document.getElementById("EventiDisponibili");
-    divGenitore.innerHTML = '';
-    for(let a = 0; a <eventi.length; a++){
-        divGenitore.innerHTML += getEventCard2(eventi[a]);
+}
+
+
+
+ async function getTopEventi(){     //deve essere asincrona in quanto la fetch è asincrona di definizione, noi la aspettiamo con await 
+    let eventi = new Array(); 
+    try {
+        const response = await fetch('/get_top_eventi');
+        const data = await response.json();     //la risposta da parte del db sottoforma di JSON 
+        console.log('Dati dal server:', data);
+    
+        for(let a = 0; a < data.length; a++){       //for o foreach 
+            const nome = data[a].nome; 
+            const id = data[a].id; 
+            const descrizione = data[a].descrizione;  
+            const dataEvento = data[a].data; 
+
+            let eventoSingolo = new Evento(id, nome, descrizione, dataEvento); 
+            eventi.push(eventoSingolo); 
+        }
+        return eventi; 
+    } catch (error) {
+        console.error('Errore durante la richiesta:', error);
+        return null; 
     }
 }
 
