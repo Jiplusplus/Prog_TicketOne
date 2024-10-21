@@ -57,8 +57,9 @@
         }
     </style>
     <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
 </head>
-<body>
+<body onload="updateEventi('')">
     <nav class="navbar">
         <div class="container">
             <div class="logo">
@@ -70,6 +71,9 @@
                 <li><a href="#">Concerti</a></li>
                 <li><a href="#">Contatti</a></li>
             </ul>
+            <form class="search-form">
+                <input type="text" placeholder="Cerca eventi, concerti..." id="ricerca" oninput="updateEventi(this.value)">
+            </form>
         </div>
     </nav>
 
@@ -79,11 +83,10 @@
             <div class="grid-container" id="card-container">
                 <!-- Card dinamiche generate qui -->
             </div>
-            <script src="script.js"></script>
-            <script>updateEventi()</script>
         </div>
+        
     </section>
-
+    
     <footer class="footer-section">
         <div class="container">
             <div class="footer-content">

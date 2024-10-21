@@ -29,7 +29,7 @@ async def root():
 @app.get("/get_comuni")
 async def get_comuni():
     try:
-        cursor = conn.cursor()
+        cursor = conn.cursor()  
         query = "SELECT nome, ID_comune FROM comune"
         print("sto eseguendo la query del comune"); 
         cursor.execute(query)
@@ -69,14 +69,11 @@ async def get_eventi():
 
 @app.get("/get_eventi")
 async def get_eventi(ricerca: str = ''):
-    print("STRINGA RICERCA: ")
-    print(ricerca)
     try:
         cursor = conn.cursor()
         interrogazione = 'SELECT ID_Evento, nome, data, descrizione FROM evento'
         if len(ricerca) > 0:
             interrogazione += ' WHERE nome LIKE "%' + ricerca  + '%"'
-        print(interrogazione)
         cursor.execute(interrogazione)
         result = cursor.fetchall() 
         datiCatturati = [{"id": row[0], "nome":row[1], "data": row[2].isoformat(), "descrizione":row[3]} for row in result]
