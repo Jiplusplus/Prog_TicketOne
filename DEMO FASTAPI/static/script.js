@@ -33,8 +33,7 @@ function getEventCard(evento){
     let immagine = document.createElement("img"); 
     immagine.setAttribute("src", "live.jpg"); 
     let titolo = document.createElement("h3"); 
-    titolo.innerText = evento.nome; 
-
+    titolo.innerText = evento.nome;
     let descrizione = document.createElement("p"); 
     descrizione.innerText = evento.descrizione; 
 
@@ -82,9 +81,9 @@ async function updateTopEventi(){
 
 }
 
-async function updateEventi() {
+async function updateEventi(parametro) {
     
-    let eventi = await getEventi(); 
+    let eventi = await getEventi(parametro); 
     if(eventi == null){
         console.log("Nessun evento caricato"); 
         return; 
@@ -93,21 +92,16 @@ async function updateEventi() {
     divGenitore.innerHTML = ''; 
     for(let a = 0; a < eventi.length; a++ ){
         divGenitore.innerHTML += getEventCard2(eventi[a]); 
-
-        //divGenitore.appendChild(getEventCard2(eventi[a])); 
     }
 }
 
 
 
-async function getEventi(){     //deve essere asincrona in quanto la fetch è asincrona di definizione, noi la aspettiamo con await 
+
+async function getEventi(parametro){     //deve essere asincrona in quanto la fetch è asincrona di definizione, noi la aspettiamo con await 
     //TODO: far in modo che prenda il parametro della barra di ricerca 
-
-    console.log("GET EVENTI IN EXEC"); 
     let eventi = new Array(); 
-    
-    const parametro = "live"; 
-
+   // document.getElementById("ricerca").value;
     try {
         const response = await fetch(`/get_eventi?ricerca=${parametro}`);
         const data = await response.json();     //la risposta da parte del db sottoforma di JSON 
@@ -130,6 +124,7 @@ async function getEventi(){     //deve essere asincrona in quanto la fetch è as
         return null; 
     }
 }
+
 
 
 
