@@ -5,8 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Eventi - TicketOne</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+    <script>updateEventi()</script>
     <style>
-        .grid-container {
+         /* Container della griglia */
+         .grid-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Griglia dinamica */
             gap: 20px;
@@ -56,10 +60,9 @@
             }
         }
     </style>
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js"></script>
+  
 </head>
-<body onload="updateEventi('')">
+<body>
     <nav class="navbar">
         <div class="container">
             <div class="logo">
@@ -71,22 +74,23 @@
                 <li><a href="#">Concerti</a></li>
                 <li><a href="#">Contatti</a></li>
             </ul>
-            <form class="search-form">
-                <input type="text" placeholder="Cerca eventi, concerti..." id="ricerca" oninput="updateEventi(this.value)">
-            </form>
         </div>
     </nav>
 
     <section class="event1-section">
         <div class="container">
             <h2>Eventi Disponibili</h2>
+            
             <div class="grid-container" id="card-container">
                 <!-- Card dinamiche generate qui -->
             </div>
+
+
+
+            
         </div>
-        
     </section>
-    
+
     <footer class="footer-section">
         <div class="container">
             <div class="footer-content">

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dettaglio Prodotto</title>
+</head>
+<body>
+    <h1 id="event-id"></h1>
+    <p id="product-description"></p>
+
+    <script>
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        function getId(){
+            const urlParams = new URLSearchParams(window.location.search); 
+            return urlParams.get('id'); 
+        }
+
+        const idLetto = getId(); 
+        document.getElementById("event-id").innerText = idLetto; 
+        
+
+
+    </script>
+</body>
+</html>

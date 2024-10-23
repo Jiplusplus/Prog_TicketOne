@@ -6,9 +6,16 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>TicketOne - Prenotazione Eventi e Concerti</title>
     <link rel="stylesheet" href="style.css">
+
     <script src="script.js"></script>
-    <script>updateTopEventi() </script>
+    <script>
+        updateTopEventi(); 
+    </script>
+
+
 </head>
+
+
 <body>
 
     <nav class="navbar">
@@ -17,10 +24,9 @@
                 <h1>TicketOne</h1>
             </div>
             <ul class="nav-links">
-                <button onclick="getEventi()">INVIA</button>
                 <li><a href="main_page.html">Home</a></li>
                 <li><a href="eventi.html">Eventi</a></li>
-                <li><a href="tutti_gli_eventi.html">Concerti</a></li>
+                <li><a href="#">Concerti</a></li>
                 <li><a href="#">Contatti</a></li>
             </ul>
 
@@ -44,7 +50,7 @@
     <section class="events-section">
         <div class="container">
             <h2>Eventi in primo piano</h2>
-            <div class="event-list" id="EventiDisponibili">
+            <div class="event-list" id="eventiDisponibili">
                 <div class="event-card">
                     <img src="https://example.com/immagine-evento1.jpg" alt="Concerto 1">
                     <h3>Concerto Rock</h3>

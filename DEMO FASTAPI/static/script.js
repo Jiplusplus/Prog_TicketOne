@@ -23,14 +23,19 @@ function getEventCard(evento){
     let carta = document.createElement("div"); 
     carta.setAttribute("class", "event-card"); 
 
-    let immagine = document.createElement("img"); 
-    immagine.setAttribute("src", "live.jpg");
-    
-    let titolo = document.createElement("h3");
-    titolo.innerText = evento.nome;
-    titolo.setAttribute("href", "card.html?=" + evento.id); 
 
-    let descrizione = document.createElement("p");
+    //creazione del componente di LINK
+    let collegamento = document.createElement("a");
+    collegamento.innerText = "Scopri di piu";
+    const link = 'singoloEvento.html?id=' + evento.id; 
+    collegamento.setAttribute("href", link);
+
+    let immagine = document.createElement("img"); 
+    immagine.setAttribute("src", "live.jpg"); 
+    let titolo = document.createElement("h3"); 
+    titolo.innerText = evento.nome; 
+
+    let descrizione = document.createElement("p"); 
     descrizione.innerText = evento.descrizione; 
 
     let spazioData = document.createElement("p"); 
@@ -38,6 +43,7 @@ function getEventCard(evento){
 
     carta.appendChild(immagine); 
     carta.appendChild(titolo); 
+    carta.appendChild(collegamento); 
     carta.appendChild(spazioData); 
     carta.appendChild(descrizione); 
     
@@ -50,8 +56,10 @@ function getEventCard2(evento){
                 <img src="live.jpg">
                 <div class="card-content">
                     <div class="card-title">${evento.nome}</div>
+                    <a href="singoloEvento.html?id=${evento.id}">Scopri di piu'</a>
                     <div class="card-description">${getItalianDate(evento.dataEvento)}</div>
                     <div class="card-description">${evento.descrizione}</div>
+                
                 </div>
             </div>
         `;
@@ -74,9 +82,9 @@ async function updateTopEventi(){
 
 }
 
-async function updateEventi(parametro) {
+async function updateEventi() {
     
-    let eventi = await getEventi(parametro); 
+    let eventi = await getEventi(); 
     if(eventi == null){
         console.log("Nessun evento caricato"); 
         return; 
@@ -85,15 +93,21 @@ async function updateEventi(parametro) {
     divGenitore.innerHTML = ''; 
     for(let a = 0; a < eventi.length; a++ ){
         divGenitore.innerHTML += getEventCard2(eventi[a]); 
+
+        //divGenitore.appendChild(getEventCard2(eventi[a])); 
     }
 }
 
 
 
-async function getEventi(parametro){     //deve essere asincrona in quanto la fetch è asincrona di definizione, noi la aspettiamo con await 
+async function getEventi(){     //deve essere asincrona in quanto la fetch è asincrona di definizione, noi la aspettiamo con await 
     //TODO: far in modo che prenda il parametro della barra di ricerca 
+
+    console.log("GET EVENTI IN EXEC"); 
     let eventi = new Array(); 
-   // document.getElementById("ricerca").value;
+    
+    const parametro = "live"; 
+
     try {
         const response = await fetch(`/get_eventi?ricerca=${parametro}`);
         const data = await response.json();     //la risposta da parte del db sottoforma di JSON 
@@ -117,6 +131,8 @@ async function getEventi(parametro){     //deve essere asincrona in quanto la fe
     }
 }
 
+
+
  async function getTopEventi(){     //deve essere asincrona in quanto la fetch è asincrona di definizione, noi la aspettiamo con await 
     let eventi = new Array(); 
     try {
@@ -138,5 +154,5 @@ async function getEventi(parametro){     //deve essere asincrona in quanto la fe
         console.error('Errore durante la richiesta:', error);
         return null; 
     }
-
 }
+
