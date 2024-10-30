@@ -173,10 +173,10 @@ async def login(request: Request):
         query = "SELECT * FROM utente WHERE email = %s AND psw = %s"
         dati = (username_inserito, psw_inserita)
         cursor.execute(query, dati)
-        result = cursor.fetchone()  
+        result = cursor.fetchone()
         
         if result:
-            request.session["user"] = result["email"]  
+            request.session["user"] = result["email"] 
             print("Accesso consentito, sessione impostata:", request.session["user"])
             return JSONResponse({"message": "Login effettuato con successo"})
         else:
