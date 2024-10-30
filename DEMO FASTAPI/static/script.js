@@ -151,7 +151,7 @@ async function getEventi(parametro){     //deve essere asincrona in quanto la fe
     console.log("GET EVENTI IN EXEC"); 
     let eventi = new Array(); 
     
-    const parametro = "live"; 
+    //const parametro = "live"; 
 
     try {
         const response = await fetch(`/get_eventi?ricerca=${parametro}`);
