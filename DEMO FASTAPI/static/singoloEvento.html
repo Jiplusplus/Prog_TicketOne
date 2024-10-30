@@ -7,13 +7,22 @@
 </head>
 <body>
     <h1 id="event-id"></h1>
-    <p id="product-description"></p>
+    <p id="descrizioneEvento"></p>
+
+
+
+    <script src="script.js"></script>
 
     <script>
+     
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(param);
         }
+
+
+    
+
 
         function getId(){
             const urlParams = new URLSearchParams(window.location.search); 
@@ -21,8 +30,19 @@
         }
 
         const idLetto = getId(); 
-        document.getElementById("event-id").innerText = idLetto; 
-        
+    
+        async function updatePage(){
+            const eventoLetto = await getEvento(idLetto); 
+            
+
+            //setup della pagina
+            document.getElementById("event-id").innerHTML = eventoLetto.nome; 
+            document.getElementById("descrizioneEvento").innerText = eventoLetto.descrizione; 
+
+        }
+    
+
+        updatePage(); 
 
 
     </script>

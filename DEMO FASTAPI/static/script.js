@@ -27,13 +27,14 @@ function getEventCard(evento){
     //creazione del componente di LINK
     let collegamento = document.createElement("a");
     collegamento.innerText = "Scopri di piu";
-    const link = 'singoloEvento.html?id=' + evento.id; 
+    const link = 'singoloevento.html?id=' + evento.id; 
     collegamento.setAttribute("href", link);
 
     let immagine = document.createElement("img"); 
     immagine.setAttribute("src", "live.jpg"); 
     let titolo = document.createElement("h3"); 
-    titolo.innerText = evento.nome;
+    titolo.innerText = evento.nome; 
+
     let descrizione = document.createElement("p"); 
     descrizione.innerText = evento.descrizione; 
 
@@ -47,6 +48,51 @@ function getEventCard(evento){
     carta.appendChild(descrizione); 
     
     return carta; 
+}
+
+function updatePage(){
+    console.log("UPDATE PAGE"); 
+    console.log(eventoLetto); 
+    //TODO: prende l'evento che è stato letto e aggiorna le componenti della pagina con quei dati 
+    document.getElementById("event-id").innerText = eventoLetto.nome; 
+}
+
+
+
+function updatePage(){
+    console.log("UPDATE PAGE"); 
+    console.log(eventoLetto); 
+    //TODO: prende l'evento che è stato letto e aggiorna le componenti della pagina con quei dati 
+    document.getElementById("event-id").innerText = eventoLetto.nome; 
+}
+
+
+async function getEvento(id){     //deve essere asincrona in quanto la fetch è asincrona di definizione, noi la aspettiamo con await 
+    console.log("CHIAMATO IL GET EVENTO"); 
+    try {
+        const response = await fetch('/get_evento?id='  + id);
+        const data = await response.json();     //la risposta da parte del db sottoforma di JSON 
+        console.log('Dati dal server:', data);
+    
+        for(let a = 0; a < data.length; a++){       //for o foreach  (CICLA 1 VOLTA)
+            const nome = data[a].nome; 
+            const id = data[a].id; 
+            const descrizione = data[a].descrizione;  
+            const dataEvento = '2024-10-23' //data[a].data; 
+            console.log(nome); 
+            console.log(id); 
+            console.log(descrizione); 
+            console.log(dataEvento); 
+        
+
+            let eventoSingolo = new Evento(id, nome, descrizione, dataEvento); 
+            console.log(eventoSingolo); 
+            return eventoSingolo; 
+        }
+    } catch (error) {
+        console.error('Errore durante la richiesta:', error);
+        return null; 
+}
 }
 
 function getEventCard2(evento){
@@ -92,16 +138,21 @@ async function updateEventi(parametro) {
     divGenitore.innerHTML = ''; 
     for(let a = 0; a < eventi.length; a++ ){
         divGenitore.innerHTML += getEventCard2(eventi[a]); 
+
+        //divGenitore.appendChild(getEventCard2(eventi[a])); 
     }
 }
 
 
 
-
 async function getEventi(parametro){     //deve essere asincrona in quanto la fetch è asincrona di definizione, noi la aspettiamo con await 
     //TODO: far in modo che prenda il parametro della barra di ricerca 
+
+    console.log("GET EVENTI IN EXEC"); 
     let eventi = new Array(); 
-   // document.getElementById("ricerca").value;
+    
+    const parametro = "live"; 
+
     try {
         const response = await fetch(`/get_eventi?ricerca=${parametro}`);
         const data = await response.json();     //la risposta da parte del db sottoforma di JSON 
@@ -127,7 +178,6 @@ async function getEventi(parametro){     //deve essere asincrona in quanto la fe
 
 
 
-
  async function getTopEventi(){     //deve essere asincrona in quanto la fetch è asincrona di definizione, noi la aspettiamo con await 
     let eventi = new Array(); 
     try {
@@ -150,4 +200,7 @@ async function getEventi(parametro){     //deve essere asincrona in quanto la fe
         return null; 
     }
 }
+
+
+
 

@@ -2,8 +2,16 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import mysql.connector
-from fastapi import FastAPI, Request
+
+
+
+from fastapi import FastAPI, Request, HTTPException
+from starlette.middleware.sessions import SessionMiddleware  
+
+SECRET_KEY = "YIO2Y3R459234"  
 app = FastAPI()
+app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
+
 templates = Jinja2Templates(directory="templates")
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -93,6 +101,31 @@ async def get_eventi(ricerca: str = ''):
         if 'cursor' in locals(): 
             cursor.close()
 
+@app.get("/get_evento")
+async def get_evento(id : str): 
+    print("ID DA CERCARE: ")
+    print(id) 
+    try:
+        cursor = conn.cursor()
+        #TODO: Aggiungere la JOIN che legga il luogo dell'evento, il comune e la provincia (opzionale: gli iscritti attuali all'evento ad oggi)
+        interrogazione = 'SELECT ID_Evento, nome, data, descrizione FROM evento WHERE ID_Evento = %s'
+     
+        print(interrogazione)
+        cursor.execute(interrogazione, (id,))
+        result = cursor.fetchall() 
+        datiCatturati = [{"id": row[0], "nome":row[1], "data": row[2].isoformat(), "descrizione":row[3]} for row in result]
+        print(datiCatturati)
+        return  JSONResponse(content=datiCatturati) 
+    except mysql.connector.Error as err: 
+        return JSONResponse(content={"error": f"Errore nel recupero dei dati: {err}"})
+    finally: 
+        if 'cursor' in locals(): 
+            cursor.close()
+
+
+
+
+
 
 @app.post("/reg_comune")
 async def reg_comune(request: Request):
@@ -125,7 +158,48 @@ async def reg_comune(request: Request):
         if 'conn' in locals():
             conn.close()
 
-@app.get("/get_evento")
-async def get_evento(id : int):
-    print("ID da cercare");
-print("id");
+
+
+        
+@app.post("/login")
+async def login(request: Request):
+    print("Sto eseguendo il login")
+    data = await request.json()
+    username_inserito = data.get("username")
+    psw_inserita = data.get("psw")
+    
+    try:
+        cursor = conn.cursor(dictionary=True)
+        query = "SELECT * FROM utente WHERE email = %s AND psw = %s"
+        dati = (username_inserito, psw_inserita)
+        cursor.execute(query, dati)
+        result = cursor.fetchone()  
+        
+        if result:
+            request.session["user"] = result["email"]  
+            print("Accesso consentito, sessione impostata:", request.session["user"])
+            return JSONResponse({"message": "Login effettuato con successo"})
+        else:
+            print("Accesso negato")
+            return JSONResponse({"message": "Password o nome utente errati"}, status_code=401)
+
+    except mysql.connector.Error as err:
+        print("Errore durante l'inserimento")
+        return JSONResponse({"Errore": f"Errore durante l'inserimento: {err}"}, status_code=500)
+    finally:
+        cursor.close()
+
+# Route per verificare lo stato della sessione
+@app.get("/utente_me")
+async def utente_me(request: Request):
+    user = request.session.get("user")
+    if user:
+        return {"message": f"Sei loggato come {user}"}
+    else:
+        raise HTTPException(status_code=401, detail="Non sei loggato")
+
+# Route per il logout
+@app.get("/logout")
+async def logout(request: Request):
+    request.session.clear()
+    return JSONResponse({"message": "Logout effettuato con successo"})
