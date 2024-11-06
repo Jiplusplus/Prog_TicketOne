@@ -140,7 +140,7 @@ button{
         <div class="shape"></div>
     </div>
     <form>
-        <h3>Login Here</h3>
+        <h3>Sign up Here</h3>
 
         <label for="username">Username</label>
         <input type="text" placeholder="Email or Phone" id="username">
@@ -148,48 +148,11 @@ button{
         <label for="password">Password</label>
         <input type="password" placeholder="Password" id="password">
 
-        <button onclick="gologin()">Log In</button>
+        <button onclick="">Sign up</button>
         <div class="social">
           <div class="go"><i class="fab fa-google"></i>  Google</div>
           <div class="fb"><i class="fab fa-facebook"></i>  Facebook</div>
         </div>
     </form>
-    <script>
-        async function gologin() {
-            // Recupera i dati dagli input
-            const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
-
-            // Crea il payload da inviare in POST
-            const data = {
-                username: username,
-                psw: password
-            };
-
-            try {
-                // Effettua la richiesta POST al server
-                const response = await fetch("/login", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                // Analizza la risposta
-                if (response.ok) {
-                    const result = await response.json();
-                    alert(result.message);
-                    location.href = "main_page.html";
-                } else {
-                    const error = await response.json();
-                    alert(`Errore: ${error.detail}`); // Mostra l'errore
-                }
-            } catch (error) {
-                console.error("Errore di connessione:", error);
-                alert("Errore di connessione al server.");
-            }
-        }
-    </script>
 </body>
 </html>

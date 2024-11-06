@@ -27,17 +27,23 @@ function getEventCard(evento){
     //creazione del componente di LINK
     let collegamento = document.createElement("a");
     collegamento.innerText = "Scopri di piu";
+
     const link = 'singoloevento.html?id=' + evento.id; 
     collegamento.setAttribute("href", link);
 
     let immagine = document.createElement("img"); 
-    immagine.setAttribute("src", "live.jpg"); 
+    immagine.setAttribute("src", "live.jpg");
+     
     let titolo = document.createElement("h3"); 
     titolo.innerText = evento.nome; 
 
     let descrizione = document.createElement("p"); 
-    descrizione.innerText = evento.descrizione; 
+    descrizione.innerText = evento.descrizione;
 
+    let prenota = document.createElement("button");
+    prenota.innerText = "PRENOTA";
+    //prenota.setAttribute("onclick", "location.href =" + `"${link}"`);
+    prenota.setAttribute("onclick", "Cheklogin()");
     let spazioData = document.createElement("p"); 
     spazioData.innerText =  getItalianDate(evento.dataEvento); 
 
@@ -45,7 +51,8 @@ function getEventCard(evento){
     carta.appendChild(titolo); 
     carta.appendChild(collegamento); 
     carta.appendChild(spazioData); 
-    carta.appendChild(descrizione); 
+    carta.appendChild(descrizione);
+    carta.appendChild(prenota);
     
     return carta; 
 }
@@ -201,6 +208,27 @@ async function getEventi(parametro){     //deve essere asincrona in quanto la fe
     }
 }
 
+async function Cheklogin() {
+    try {
+        const response = await fetch('/utente_me');
+        const data = await response.json();     //la risposta da parte del db sottoforma di JSON 
+        if(data){
+            alert(JSON.stringify(data));
+            document.getElementById("username").innerText = JSON.stringify(data);
+        }
+    } catch (error) {
+        console.error('Errore durante la richiesta:', error);
+        return null; 
+    }
+}
 
-
-
+async function LogOut() {
+    try {
+        const response = await fetch('/logout');
+        const data = await response.json();     //la risposta da parte del db sottoforma di JSON 
+        alert(JSON.stringify(data));
+    } catch (error) {
+        console.error('Errore durante la richiesta:', error);
+        return null; 
+    }
+}

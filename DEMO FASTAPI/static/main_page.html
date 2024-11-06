@@ -15,8 +15,7 @@
 
 </head>
 
-
-<body>
+<body onload="Cheklogin()">
 
     <nav class="navbar">
         <div class="container">
@@ -34,16 +33,18 @@
                 <input type="text" placeholder="Cerca eventi, concerti..." name="search">
                 <button type="submit" class="btn btn-search">Cerca</button>
             </form>
-
-            <a href="login.html" class="btn btn-primary">Login/Sign Up</a>
+            <a href="signup.html" class="btn btn-primary">Sign up</a>
+            <a href="login.html" class="btn btn-primary">Login</a>
+            <a onclick="LogOut()" class="btn btn-primary">Logout</a>
         </div>
     </nav>
 
     <section class="hero-section">
         <div class="hero-content">
+            <h1 id = "username"></h1>
             <h1>Benvenuti su TicketOne</h1>
             <p>Prenota i migliori eventi e concerti con un click!</p>
-            <a href="#" class="btn btn-secondary">Prenota ora</a>
+            <a href="eventi.html" class="btn btn-secondary">Prenota ora</a>
         </div>
     </section>
 

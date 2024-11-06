@@ -158,9 +158,7 @@ async def reg_comune(request: Request):
         if 'conn' in locals():
             conn.close()
 
-
-
-        
+  
 @app.post("/login")
 async def login(request: Request):
     print("Sto eseguendo il login")
@@ -194,9 +192,9 @@ async def login(request: Request):
 async def utente_me(request: Request):
     user = request.session.get("user")
     if user:
-        return {"message": f"Sei loggato come {user}"}
+        return JSONResponse({"message": f"Sei loggato come {user}"})
     else:
-        raise HTTPException(status_code=401, detail="Non sei loggato")
+        raise HTTPException(status_code=401, detail="Non sei loggato") 
 
 # Route per il logout
 @app.get("/logout")
