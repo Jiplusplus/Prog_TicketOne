@@ -148,11 +148,51 @@ button{
         <label for="password">Password</label>
         <input type="password" placeholder="Password" id="password">
 
-        <button onclick="">Sign up</button>
+        <button onclick="signup()">Sign up</button>
         <div class="social">
           <div class="go"><i class="fab fa-google"></i>  Google</div>
           <div class="fb"><i class="fab fa-facebook"></i>  Facebook</div>
         </div>
     </form>
+    <script>
+       async function signup() {
+    // Recupera i dati dagli input
+    const email = document.getElementById("username").value;
+    const psw = document.getElementById("password").value;
+    const id_comune = "1";
+
+    // Crea il payload da inviare in POST
+    const data = {
+        email: email,
+        psw: psw,
+        id_comune: id_comune
+    };
+
+    try {
+        // Effettua la richiesta POST al server
+        const response = await fetch("http://127.0.0.1:8000/signup", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            // Mostra un messaggio di successo
+            alert("Registrazione completata con successo!");
+            location.href = "main_page.html";
+        } else {
+            // Se il server restituisce un errore
+            const errorData = await response.json();
+            alert("Errore durante la registrazione: " + (errorData.Errore || "Errore sconosciuto"));
+        }
+    } catch (error) {
+        console.error("Errore di connessione:", error);
+        alert("Errore di connessione al server.");
+    }
+}
+
+    </script>
 </body>
 </html>

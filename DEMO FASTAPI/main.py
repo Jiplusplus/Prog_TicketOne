@@ -18,11 +18,6 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 
-
-
-
-
-
 # Connessione al database MySQL
 conn = mysql.connector.connect(
     host="localhost",
@@ -186,6 +181,39 @@ async def login(request: Request):
         return JSONResponse({"Errore": f"Errore durante l'inserimento: {err}"}, status_code=500)
     finally:
         cursor.close()
+
+@app.post("/signup")
+async def signup(request: Request):
+    data = await request.json()
+    email = data.get("email")
+    psw = data.get("psw")
+    id_comune = data.get("id_comune")
+
+    print("HO RICEVUTO QUESTI DATI")
+    print(email)
+    print(psw)
+    print(id_comune)
+
+    try:
+        cursor = conn.cursor()
+        # Query di inserimento
+        query = "INSERT INTO utente (email, psw, id_comune) VALUES (%s, %s, %s)"
+        dati = (email, psw, id_comune)
+        cursor.execute(query, dati)
+        conn.commit()
+
+        # Imposta la sessione per l'utente appena registrato
+        request.session["user"] = email
+        print(f"Sessione impostata per l'utente: {email}")
+        return {"message": "Registrazione completata e sessione impostata"}
+    except mysql.connector.Error as err:
+        print("ci sono stati problemi in inserimento")
+        return {"Errore": f"Errore durante l'inserimento: {err}"}
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+
+
 
 # Route per verificare lo stato della sessione
 @app.get("/utente_me")
