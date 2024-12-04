@@ -105,6 +105,9 @@ function getEventCard(evento) {
     let carta = document.createElement("div");
     carta.setAttribute("class", "event-card");
 
+    // Log dell'intero oggetto 'evento' per diagnosticare
+    console.log("Oggetto evento:", evento);
+
     // Gestione del link per la pagina dell'evento
     const link = 'singoloevento.html?id=' + (evento?.id || ""); // Controllo di sicurezza per 'id'
 
@@ -123,11 +126,21 @@ function getEventCard(evento) {
 
     // Spazio per la data dell'evento
     let spazioData = document.createElement("p");
-    try {
-        spazioData.innerText = getItalianDate(evento?.data || ""); // Gestione dei casi in cui 'data' è mancante
-    } catch (error) {
-        console.error("Errore nella conversione della data:", error);
-        spazioData.innerText = "Data non disponibile";
+
+    // Aggiungi log per visualizzare il valore di evento.data
+    console.log("evento.data:", evento?.data); // Aggiungi questo per il debug
+
+    // Verifica se la data esiste e passa una data valida alla funzione
+    const eventoData = evento?.data || null; // Se 'data' è undefined, settiamo null
+    if (eventoData) {
+        try {
+            spazioData.innerText = getItalianDate(eventoData); // Funzione di conversione della data
+        } catch (error) {
+            console.error("Errore nella conversione della data:", error);
+            spazioData.innerText = "Data non disponibile";
+        }
+    } else {
+        spazioData.innerText = "Data non disponibile"; // Se la data è null o undefined
     }
 
     // Bottone prenota con input per il numero di ospiti
@@ -142,8 +155,6 @@ function getEventCard(evento) {
 
     return carta;
 }
-
-
 
 
 function updatePage(){
