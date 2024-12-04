@@ -17,45 +17,134 @@ function getItalianDate(americanDate){
 }
 
 
+function createPrenotaButton(eventoId) {
+    let container = document.createElement("div");
 
-//funzione grafica che mi crea le parti HTML sulla base degli eventi 
-function getEventCard(evento){
-    let carta = document.createElement("div"); 
-    carta.setAttribute("class", "event-card"); 
+    // Input per il numero di ospiti
+    let inputNumeroOspiti = document.createElement("input");
+    inputNumeroOspiti.type = "number";
+    inputNumeroOspiti.min = "1";
+    inputNumeroOspiti.value = "1";
+    inputNumeroOspiti.placeholder = "Numero ospiti";
 
-
-    //creazione del componente di LINK
-    let collegamento = document.createElement("a");
-    collegamento.innerText = "Scopri di piu";
-
-    const link = 'singoloevento.html?id=' + evento.id; 
-    collegamento.setAttribute("href", link);
-
-    let immagine = document.createElement("img"); 
-    immagine.setAttribute("src", "live.jpg");
-     
-    let titolo = document.createElement("h3"); 
-    titolo.innerText = evento.nome; 
-
-    let descrizione = document.createElement("p"); 
-    descrizione.innerText = evento.descrizione;
-
+    // Bottone "PRENOTA"
     let prenota = document.createElement("button");
     prenota.innerText = "PRENOTA";
-    //prenota.setAttribute("onclick", "location.href =" + `"${link}"`);
-    prenota.setAttribute("onclick", "Cheklogin()");
-    let spazioData = document.createElement("p"); 
-    spazioData.innerText =  getItalianDate(evento.dataEvento); 
 
-    carta.appendChild(immagine); 
-    carta.appendChild(titolo); 
-    carta.appendChild(collegamento); 
-    carta.appendChild(spazioData); 
-    carta.appendChild(descrizione);
-    carta.appendChild(prenota);
-    
-    return carta; 
+    // Aggiungi evento al click
+    prenota.addEventListener("click", async () => {
+        const numeroOspiti = parseInt(inputNumeroOspiti.value);
+        if (isNaN(numeroOspiti) || numeroOspiti <= 0) {
+            alert("Inserisci un numero valido di ospiti");
+            return;
+        }
+
+        try {
+            const response = await fetch("/prenota_evento", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include", // Importante per inviare i cookie di sessione
+                body: JSON.stringify({ evento_id: eventoId, numero_ospiti: numeroOspiti })
+            });
+
+            console.log(eventoId, numeroOspiti);
+
+            if (response.ok) {
+                const data = await response.json();
+                alert(data.message); // Notifica di successo
+                location.href = `singoloevento.html?id=${eventoId}`; // Reindirizza alla pagina dell'evento
+            } else {
+                const errorData = await response.json();
+                alert(errorData.detail || "Errore durante la prenotazione");
+            }
+        } catch (error) {
+            console.error("Errore durante la prenotazione:", error);
+            alert("Errore imprevisto. Riprova più tardi.");
+        }
+    });
+
+    // Aggiungi input e bottone al container
+    container.appendChild(inputNumeroOspiti);
+    container.appendChild(prenota);
+
+    return container;
 }
+
+
+
+
+async function checkLoginAndRedirect(link) {
+    try {
+        const response = await fetch("/utente_me", { 
+            method: "GET", 
+            credentials: "include" // Importante per inviare i cookie di sessione
+        });
+
+        if (response.ok) {
+            // L'utente è loggato
+            const data = await response.json();
+            console.log(data.message); // Opzionale: mostra un messaggio di conferma
+            location.href = link; // Reindirizza alla pagina specifica
+        } else {
+            // L'utente non è loggato
+            throw new Error("Non sei loggato");
+        }
+    } catch (error) {
+        alert("Devi essere loggato per accedere a questa funzione!"); // Mostra un avviso
+        location.href = "login.html"; // Reindirizza alla pagina di login
+    }
+}
+
+
+
+
+//funzione grafica che mi crea le parti HTML sulla base degli eventi 
+function getEventCard(evento) {
+    let carta = document.createElement("div");
+    carta.setAttribute("class", "event-card");
+
+    // Gestione del link per la pagina dell'evento
+    const link = 'singoloevento.html?id=' + (evento?.id || ""); // Controllo di sicurezza per 'id'
+
+    // Aggiunta immagine
+    let immagine = document.createElement("img");
+    immagine.setAttribute("src", "live.jpg");
+    immagine.setAttribute("alt", "Immagine evento");
+
+    // Titolo dell'evento
+    let titolo = document.createElement("h3");
+    titolo.innerText = evento?.nome || "Nome evento non disponibile"; // Fallback in caso di nome mancante
+
+    // Descrizione dell'evento
+    let descrizione = document.createElement("p");
+    descrizione.innerText = evento?.descrizione || "Descrizione non disponibile";
+
+    // Spazio per la data dell'evento
+    let spazioData = document.createElement("p");
+    try {
+        spazioData.innerText = getItalianDate(evento?.data || ""); // Gestione dei casi in cui 'data' è mancante
+    } catch (error) {
+        console.error("Errore nella conversione della data:", error);
+        spazioData.innerText = "Data non disponibile";
+    }
+
+    // Bottone prenota con input per il numero di ospiti
+    let prenotaContainer = createPrenotaButton(evento?.id || "");
+
+    // Assemblaggio della carta
+    carta.appendChild(immagine);
+    carta.appendChild(titolo);
+    carta.appendChild(spazioData);
+    carta.appendChild(descrizione);
+    carta.appendChild(prenotaContainer);
+
+    return carta;
+}
+
+
+
 
 function updatePage(){
     console.log("UPDATE PAGE"); 

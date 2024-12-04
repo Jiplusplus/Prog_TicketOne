@@ -214,6 +214,61 @@ async def signup(request: Request):
             cursor.close()
 
 
+@app.post("/prenota_evento")
+async def prenota_evento(request: Request):
+    user = request.session.get("user")
+    if not user:
+        raise HTTPException(status_code=401, detail="Devi essere loggato per prenotare un evento")
+    
+    data = await request.json()
+    evento_id = data.get("evento_id")
+    numero_ospiti = data.get("numero_ospiti")
+    
+    if not evento_id or not numero_ospiti:
+        raise HTTPException(status_code=400, detail="ID evento e numero ospiti sono richiesti")
+    
+    try:
+        cursor = conn.cursor()
+        
+        # Verifica se l'evento esiste
+        verifica_evento_query = "SELECT ID_Evento FROM evento WHERE ID_Evento = %s"
+        cursor.execute(verifica_evento_query, (evento_id,))
+        evento = cursor.fetchone()
+        if not evento:
+            raise HTTPException(status_code=404, detail="Evento non trovato")
+        
+        # Verifica se l'utente ha già prenotato per questo evento
+        verifica_prenotazione_query = "SELECT * FROM prenota WHERE email = %s AND id_evento = %s"
+        cursor.execute(verifica_prenotazione_query, (user, evento_id))
+        prenotazione = cursor.fetchone()
+        if prenotazione:
+            raise HTTPException(status_code=409, detail="Hai già prenotato questo evento")
+
+        # Inserisce la prenotazione
+        query_prenotazione = """
+            INSERT INTO prenota (email, id_evento, numero_ospiti)
+            VALUES (%s, %s, %s)
+        """
+        
+        # Stampa della query di prenotazione per il debug
+        print(f"Query di prenotazione: {query_prenotazione} con parametri: {user}, {evento_id}, {numero_ospiti}")
+        
+        cursor.execute(query_prenotazione, (user, evento_id, numero_ospiti))
+        conn.commit()
+        
+        return JSONResponse({"message": f"Prenotazione effettuata per l'evento con ID {evento_id} per {numero_ospiti} ospiti"})
+    
+    except mysql.connector.Error as err:
+        # In caso di errore durante l'esecuzione della query, restituiamo un errore 500
+        print(f"Errore database: {err}")  # Puoi anche stampare l'errore per il debug
+        return JSONResponse(content={"error": f"Errore durante la prenotazione: {err}"}, status_code=500)
+    
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+
+
+
 
 # Route per verificare lo stato della sessione
 @app.get("/utente_me")
