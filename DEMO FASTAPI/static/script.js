@@ -105,48 +105,37 @@ function getEventCard(evento) {
     let carta = document.createElement("div");
     carta.setAttribute("class", "event-card");
 
-    // Log dell'intero oggetto 'evento' per diagnosticare
     console.log("Oggetto evento:", evento);
 
-    // Gestione del link per la pagina dell'evento
-    const link = 'singoloevento.html?id=' + (evento?.id || ""); // Controllo di sicurezza per 'id'
+    const link = 'singoloevento.html?id=' + (evento?.id || "");
 
-    // Aggiunta immagine
     let immagine = document.createElement("img");
     immagine.setAttribute("src", "live.jpg");
     immagine.setAttribute("alt", "Immagine evento");
 
-    // Titolo dell'evento
     let titolo = document.createElement("h3");
-    titolo.innerText = evento?.nome || "Nome evento non disponibile"; // Fallback in caso di nome mancante
+    titolo.innerText = evento?.nome || "Nome evento non disponibile";
 
-    // Descrizione dell'evento
     let descrizione = document.createElement("p");
     descrizione.innerText = evento?.descrizione || "Descrizione non disponibile";
 
-    // Spazio per la data dell'evento
     let spazioData = document.createElement("p");
+    console.log("evento.dataEvento:", evento?.dataEvento); // Verifica la data
 
-    // Aggiungi log per visualizzare il valore di evento.data
-    console.log("evento.data:", evento?.data); // Aggiungi questo per il debug
-
-    // Verifica se la data esiste e passa una data valida alla funzione
-    const eventoData = evento?.data || null; // Se 'data' è undefined, settiamo null
+    const eventoData = evento?.dataEvento || null;
     if (eventoData) {
         try {
-            spazioData.innerText = getItalianDate(eventoData); // Funzione di conversione della data
+            spazioData.innerText = getItalianDate(eventoData);
         } catch (error) {
             console.error("Errore nella conversione della data:", error);
             spazioData.innerText = "Data non disponibile";
         }
     } else {
-        spazioData.innerText = "Data non disponibile"; // Se la data è null o undefined
+        spazioData.innerText = "Data non disponibile";
     }
 
-    // Bottone prenota con input per il numero di ospiti
     let prenotaContainer = createPrenotaButton(evento?.id || "");
 
-    // Assemblaggio della carta
     carta.appendChild(immagine);
     carta.appendChild(titolo);
     carta.appendChild(spazioData);
@@ -353,24 +342,41 @@ async function getEventi(parametro){     //deve essere asincrona in quanto la fe
 async function Cheklogin() {
     try {
         const response = await fetch('/utente_me');
-        const data = await response.json();     //la risposta da parte del db sottoforma di JSON 
-        if(data){
-            alert(JSON.stringify(data));
-            document.getElementById("username").innerText = JSON.stringify(data);
+        const data = await response.json();  // la risposta da parte del db sottoforma di JSON
+        console.log('Risposta dal server:', data);  // Aggiungi questo log per verificare cosa ricevi
+
+        // Verifica la presenza del campo message (che contiene l'email dell'utente)
+        if (data && data.message) {
+            document.getElementById("username").innerText = `Ciao, ${data.message.split(' ')[3]}`;  // Estrae l'email dall'output
+            document.getElementById("login-logout").innerText = "Logout"; // Modifica il testo per logout
+            document.getElementById("login-logout").setAttribute("onclick", "LogOut()"); // Imposta l'evento di logout
+            document.getElementById("signup-login").style.display = "none"; // Nascondi il link di login/signup
+        } else {
+            console.log('Errore, nessun messaggio trovato:', data);  // Mostra un messaggio di errore se la risposta non è quella aspettata
         }
     } catch (error) {
-        console.error('Errore durante la richiesta:', error);
-        return null; 
+        console.error('Errore durante la richiesta:', error);  // Aggiungi log di errore in caso di problemi
     }
 }
 
+
 async function LogOut() {
     try {
-        const response = await fetch('/logout');
-        const data = await response.json();     //la risposta da parte del db sottoforma di JSON 
-        alert(JSON.stringify(data));
+        // Invia la richiesta di logout al server
+        const response = await fetch('/logout', {
+            method: 'GET',
+        });
+
+        // Se la richiesta è andata a buon fine, aggiorna la UI
+        const data = await response.json();
+        console.log(data);  // Aggiungi questo log per verificare la risposta
+
+        // Cambia il testo del bottone per "Login" e nascondi il pulsante di Logout
+        document.getElementById("login-logout").setAttribute("onclick", "location.href='/login'");  // Reindirizza alla pagina di login
+        document.getElementById("signup-login").style.display = "block";  // Rendi visibile il link di registrazione/login
+        document.getElementById("username").innerText = "";  // Rimuovi il nome utente dalla UI
     } catch (error) {
-        console.error('Errore durante la richiesta:', error);
-        return null; 
+        console.error('Errore durante il logout:', error);  // Aggiungi log di errore in caso di problemi
     }
 }
+

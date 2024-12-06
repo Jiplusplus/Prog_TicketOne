@@ -28,16 +28,22 @@
                 <li><a href="#">Concerti</a></li>
                 <li><a href="#">Contatti</a></li>
             </ul>
-
+    
             <form class="search-form" action="#" method="get">
                 <input type="text" placeholder="Cerca eventi, concerti..." name="search">
                 <button type="submit" class="btn btn-search">Cerca</button>
             </form>
-            <a href="signup.html" class="btn btn-primary">Sign up</a>
-            <a href="login.html" class="btn btn-primary">Login</a>
-            <a onclick="LogOut()" class="btn btn-primary">Logout</a>
+    
+            <!-- Bottone login/signup nascosto quando l'utente è loggato -->
+            <a id="signup-login" href="signup.html" class="btn btn-primary">Sign up</a>
+            <a id="signup-login" href="login.html" class="btn btn-primary">Login</a>
+            
+            <!-- Bottone di logout mostrato solo quando l'utente è loggato -->
+            <a id="login-logout" href="#" class="btn btn-primary">Login</a>
         </div>
     </nav>
+    
+    
 
     <section class="hero-section">
         <div class="hero-content">
