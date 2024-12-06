@@ -202,20 +202,62 @@ async function getEvento(id){     //deve essere asincrona in quanto la fetch è 
 }
 }
 
-function getEventCard2(evento){
-    return `
-            <div class="card">
-                <img src="live.jpg">
-                <div class="card-content">
-                    <div class="card-title">${evento.nome}</div>
-                    <a href="singoloEvento.html?id=${evento.id}">Scopri di piu'</a>
-                    <div class="card-description">${getItalianDate(evento.dataEvento)}</div>
-                    <div class="card-description">${evento.descrizione}</div>
-                
-                </div>
-            </div>
-        `;
+async function prenotaEvento(eventoId) {
+    const inputOspiti = document.getElementById(`numero-ospiti-${eventoId}`);
+    const numeroOspiti = parseInt(inputOspiti.value);
+
+    if (isNaN(numeroOspiti) || numeroOspiti <= 0) {
+        alert("Inserisci un numero valido di ospiti");
+        return;
+    }
+
+    try {
+        const response = await fetch("/prenota_evento", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "include",
+            body: JSON.stringify({ evento_id: eventoId, numero_ospiti: numeroOspiti })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            alert(data.message);
+            location.href = `singoloEvento.html?id=${eventoId}`; // Reindirizza alla pagina dell'evento
+        } else {
+            const errorData = await response.json();
+            alert(errorData.detail || "Errore durante la prenotazione");
+        }
+    } catch (error) {
+        console.error("Errore durante la prenotazione:", error);
+        alert("Errore imprevisto. Riprova più tardi.");
+    }
 }
+
+
+function getEventCard2(evento) {
+    const prenotaButtonHtml = `
+        <div class="prenota-container">
+            <input type="number" min="1" value="1" placeholder="Numero ospiti" id="numero-ospiti-${evento.id}">
+            <button onclick="prenotaEvento(${evento.id})">PRENOTA</button>
+        </div>
+    `;
+
+    return `
+        <div class="card">
+            <img src="live.jpg">
+            <div class="card-content">
+                <div class="card-title">${evento.nome}</div>
+                <a href="singoloEvento.html?id=${evento.id}">Scopri di più</a>
+                <div class="card-description">${getItalianDate(evento.dataEvento)}</div>
+                <div class="card-description">${evento.descrizione}</div>
+                ${prenotaButtonHtml}
+            </div>
+        </div>
+    `;
+}
+
 
 
 async function updateTopEventi(){
